@@ -298,6 +298,13 @@ function runDiff(args: string[]): number {
 		return EXIT_USAGE;
 	}
 	const d = diff(findProject(), name, { ref: values.ref });
+	if (d.base === "unknown") {
+		print(`# No base (installed from a commit the registry does not have)`);
+		print("");
+		print(`# Local against upstream (local → ${d.ref})`);
+		print(d.upstream.trim() || "(none)");
+		return EXIT_OK;
+	}
 	print(`# Local changes (base ${d.base} → local)`);
 	print(d.local.trim() || "(none)");
 	print("");

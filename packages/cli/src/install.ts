@@ -329,7 +329,14 @@ export function update(
 	const unmodified = same(ours, base.files);
 	const merged = unmodified
 		? { ...theirs.files }
-		: mergeFiles(ours, base.files, theirs.files, source.ref, result.conflicts);
+		: mergeFiles(
+				ours,
+				base.files,
+				theirs.files,
+				source.ref,
+				result.conflicts,
+				!found.item,
+			);
 	const next = provenance(source, p.item, theirs);
 
 	if (result.conflicts.length) {
@@ -428,6 +435,8 @@ function mergeFiles(
 	theirs: Record<string, string>,
 	ref: string,
 	conflicts: string[],
+	/** No base: a file on one side only is a conflict too (kept, not dropped). */
+	twoWay = false,
 ): Record<string, string> {
 	const out: Record<string, string> = {};
 	const names = new Set([
@@ -439,6 +448,14 @@ function mergeFiles(
 	try {
 		for (const f of [...names].sort()) {
 			const [o, b, t] = [ours[f], base[f], theirs[f]];
+			if (twoWay && (o === undefined) !== (t === undefined)) {
+				// Removed on one side or added on the other: unknown which, keep it.
+				out[f] = (o ?? t) as string;
+				conflicts.push(
+					`${f} (${o === undefined ? "only upstream" : "only local"}, no base to tell whether it was added or removed)`,
+				);
+				continue;
+			}
 			if (o === b) {
 				if (t !== undefined) {
 					out[f] = t;
