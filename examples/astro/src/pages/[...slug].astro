@@ -1,0 +1,46 @@
+---
+// Every content page. Pages, metadata and static paths come from content/.
+import "../styles/global.css";
+
+import {
+	getStaticPaths as contentPaths,
+	loadPage,
+	previewHeaders,
+} from "@wunderweb/astro";
+import Consent from "@wunderweb/astro/Consent.astro";
+import ConsentHead from "@wunderweb/astro/ConsentHead.astro";
+import Head from "@wunderweb/astro/Head.astro";
+import Page from "@wunderweb/astro/Page.astro";
+import { createRegistry } from "@wunderweb/react";
+
+import { components } from "../../generated/components";
+
+// Ignored in a preview build, which renders this route on demand.
+export const getStaticPaths = () => contentPaths();
+
+// The request picks the source: files, or a preview's content service.
+const page = await loadPage(Astro.params.slug, { request: Astro.request });
+previewHeaders(Astro.response.headers);
+if (!page) {
+	// Astro answers with the 404 page (src/pages/404.astro, else its own).
+	return new Response(null, {
+		status: 404,
+		headers: previewHeaders(new Headers()),
+	});
+}
+// Wrap or override entries here, e.g. createRegistry({ ...components, Card: MyCard }).
+const registry = createRegistry(components);
+---
+<!doctype html>
+<html lang={page.page.locale}>
+	<head>
+		<meta charset="utf-8" />
+		<ConsentHead page={page} />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<Head page={page} />
+	</head>
+	<body>
+		<Consent page={page} />
+		<Page page={page} registry={registry} />
+	</body>
+</html>

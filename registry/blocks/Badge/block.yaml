@@ -1,0 +1,7 @@
+doc: Short label.
+in: [Leaf, Inline]
+traits: [Box]
+fields:
+  text: string
+  color?: {type: Paint, doc: Background.}
+  textColor?: Color

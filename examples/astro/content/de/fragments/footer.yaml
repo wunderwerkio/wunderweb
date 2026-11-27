@@ -1,0 +1,13 @@
+fragment: footer
+blocks:
+  - type: Text
+    id: bm17che9
+    background: {color: ink}
+    appearance: {textColor: white}
+    layout: {container: default, padding: {base: {top: 8, bottom: 8}}}
+    body: <p>© Footer · <a href="page:privacy">Datenschutz</a></p>
+    after:
+      - type: Buttons
+        id: yhkiiv3c
+        items:
+          - {label: Cookie-Einstellungen, url: "consent:settings", variant: secondary, size: sm}

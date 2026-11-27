@@ -1,0 +1,6 @@
+provenance: { registry: wunderweb, item: Stack, ref: working-tree, commit: 6382ca3aab4fb2a46886dbf538dc8fee0df8cbbe, schema: 1 }
+doc: Blocks stacked vertically, spaced by layout.gap.
+in: [Content]
+traits: [Box, Linkable]
+fields:
+  items: Leaf[]

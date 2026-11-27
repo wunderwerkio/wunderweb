@@ -1,0 +1,302 @@
+---
+// Consent banner and settings dialog in the page's locale, with the body
+// part of the consent script. Put it first in <body>, so the banner comes
+// first in the tab order. Renders nothing in edit mode or without a
+// consent config.
+//
+//   <body><Consent page={page} /><Page page={page} registry={registry} /></body>
+//
+// Banner: a non-modal dialog at the bottom; "accept all" and "only
+// necessary" are equal buttons by default (style.choice: same size, colour,
+// contrast, as the Austrian DSB and the BVwG (ORF, 2026) and the German DSK
+// require); style.reject gives "only necessary" its own variant, at the
+// site's risk. "settings" is a text link next to the privacy link.
+// Settings: a modal <dialog> (focus stays inside, Escape closes without
+// saving), one checkbox per category, none ticked
+// before the visitor decides. Colors are theme tokens (style.surface,
+// style.text), buttons the site's .wc-button variants.
+import type { SourcePage } from "@wunderweb/core";
+
+import { consentOf, consentScript } from "../dist/index.mjs";
+
+interface Props {
+	page: SourcePage;
+}
+
+const consent = consentOf(Astro.props.page);
+const t = consent?.text;
+const tokens = consent
+	? `--wc-consent-surface: var(--color-${consent.style.surface}); --wc-consent-text: var(--color-${consent.style.text});`
+	: "";
+const button = "wc-button inline-flex items-center justify-center gap-2";
+const reject = consent?.style.reject ?? consent?.style.choice;
+const cookieless = consent?.cookieless.length
+	? t?.dialog.cookieless.replace("{tools}", consent.cookieless.join(", "))
+	: undefined;
+---
+{consent && t && (
+	<div
+		id="wc-consent-banner"
+		class="wc-consent wc-consent-banner"
+		role="dialog"
+		aria-modal="false"
+		aria-labelledby="wc-consent-banner-title"
+		aria-describedby="wc-consent-banner-body"
+		style={tokens}
+		hidden
+	>
+		<div class="wc-consent-banner-inner">
+			<div class="wc-consent-banner-text">
+				<h2 id="wc-consent-banner-title" class="wc-consent-title">{t.banner.title}</h2>
+				<!-- The description is the text only, not the links after it. -->
+				<p>
+					<span id="wc-consent-banner-body">{t.banner.body}</span>
+					{" "}
+					<span class="wc-consent-links">
+						{consent.privacy && <a href={consent.privacy}>{t.privacy}</a>}
+						<button type="button" class="wc-consent-link" data-wc-consent-action="settings" aria-haspopup="dialog">{t.banner.settings}</button>
+					</span>
+				</p>
+			</div>
+			<!-- "accept all" last: on the right, under a right thumb on phones
+			     (and in reading and tab order, as in the dialog). -->
+			<div class="wc-consent-actions">
+				<button type="button" class={button} data-variant={reject} data-size="md" data-wc-consent-action="reject"><span class="wc-button-label">{t.banner.reject}</span></button>
+				<button type="button" class={button} data-variant={consent.style.choice} data-size="md" data-wc-consent-action="accept"><span class="wc-button-label">{t.banner.acceptAll}</span></button>
+			</div>
+		</div>
+	</div>
+	<dialog
+		id="wc-consent-settings"
+		class="wc-consent wc-consent-dialog"
+		aria-labelledby="wc-consent-settings-title"
+		aria-describedby="wc-consent-settings-body"
+		style={tokens}
+	>
+		<div class="wc-consent-dialog-head">
+			<h2 id="wc-consent-settings-title" class="wc-consent-title">{t.dialog.title}</h2>
+			<button type="button" class="wc-consent-close" data-wc-consent-action="close" aria-label={t.dialog.close}>
+				<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+			</button>
+		</div>
+		<p id="wc-consent-settings-body">
+			{t.dialog.body}
+			{consent.privacy && <> <a href={consent.privacy}>{t.privacy}</a></>}
+		</p>
+		<ul class="wc-consent-categories">
+			<li>
+				<input type="checkbox" id="wc-consent-necessary" checked disabled aria-describedby="wc-consent-necessary-text" />
+				<div>
+					<label for="wc-consent-necessary">{t.necessary.label} <span class="wc-consent-always">({t.dialog.always})</span></label>
+					<p id="wc-consent-necessary-text">{t.necessary.description}</p>
+				</div>
+			</li>
+			{consent.categories.map((c) => (
+				<li>
+					<input type="checkbox" id={`wc-consent-${c.id}`} data-wc-consent-category={c.id} aria-describedby={`wc-consent-${c.id}-text`} />
+					<div>
+						<label for={`wc-consent-${c.id}`}>{c.label}</label>
+						<p id={`wc-consent-${c.id}-text`}>
+							{c.description}
+							{c.vendors.length > 0 && <span class="wc-consent-vendors"> {t.dialog.vendors}: {c.vendors.join(", ")}</span>}
+						</p>
+					</div>
+				</li>
+			))}
+		</ul>
+		{cookieless && <p class="wc-consent-note">{cookieless}</p>}
+		<div class="wc-consent-actions">
+			<button type="button" class={button} data-variant={reject} data-size="md" data-wc-consent-action="reject"><span class="wc-button-label">{t.dialog.reject}</span></button>
+			<button type="button" class={button} data-variant={consent.style.quiet} data-size="md" data-wc-consent-action="save"><span class="wc-button-label">{t.dialog.save}</span></button>
+			<button type="button" class={button} data-variant={consent.style.choice} data-size="md" data-wc-consent-action="accept"><span class="wc-button-label">{t.dialog.acceptAll}</span></button>
+		</div>
+	</dialog>
+	<script is:inline set:html={consentScript} />
+)}
+
+<style is:inline>
+	.wc-consent {
+		background: var(--wc-consent-surface);
+		color: var(--wc-consent-text);
+	}
+	.wc-consent[hidden] {
+		display: none;
+	}
+	/* Pointer on every button of banner, dialog and gates (CSS resets such
+	   as Tailwind 4 give buttons the default arrow). */
+	.wc-consent button:not(:disabled),
+	.wc-consent-gate button:not(:disabled) {
+		cursor: pointer;
+	}
+	.wc-consent p {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.5;
+	}
+	.wc-consent a {
+		color: inherit;
+		text-decoration: underline;
+	}
+	.wc-consent-title {
+		margin: 0 0 4px;
+		font-size: 1.125rem;
+		line-height: 1.3;
+	}
+	.wc-consent-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.wc-consent-banner {
+		position: fixed;
+		inset-inline: 0;
+		bottom: 0;
+		z-index: 2147483000;
+		max-height: 60vh;
+		overflow: auto;
+		padding: 16px 24px;
+		box-shadow: 0 -4px 24px rgb(0 0 0 / 0.15);
+	}
+	.wc-consent-banner-inner {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px 32px;
+		max-width: 1200px;
+		margin-inline: auto;
+	}
+	.wc-consent-banner-text {
+		flex: 1 1 28rem;
+	}
+	/* "Datenschutzerklärung · Einstellungen" after the text, never split. */
+	.wc-consent-links {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: 0 0.75em;
+	}
+	.wc-consent-link {
+		padding: 0;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+	/* The choices sit at the right edge, also on a line of their own. */
+	.wc-consent-banner .wc-consent-actions {
+		margin-inline-start: auto;
+	}
+	/* The two choices in equal width. */
+	.wc-consent-banner .wc-consent-actions > button {
+		flex: 1 1 0;
+		white-space: nowrap;
+	}
+	/* Phones: as small as the choice allows. The title is read by screen
+	   readers only (the banner stays labelled), smaller type, both buttons
+	   side by side and lower; overrides the site's button sizes (the banner's
+	   buttons only). */
+	@media (max-width: 40rem) {
+		.wc-consent-banner {
+			padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+		}
+		.wc-consent-banner-inner {
+			gap: 8px;
+		}
+		.wc-consent-banner .wc-consent-title {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+		.wc-consent-banner p {
+			font-size: 0.8125rem;
+			line-height: 1.4;
+		}
+		/* Side by side; labels too long for one row (zoom, translations)
+		   wrap the second button below instead of clipping. */
+		.wc-consent-banner .wc-consent-actions {
+			width: 100%;
+		}
+		.wc-consent-banner .wc-consent-actions > .wc-button {
+			min-height: 40px;
+			padding: 4px 8px;
+			font-size: 14px;
+		}
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		.wc-consent-banner:not([hidden]) {
+			animation: wc-consent-in 250ms ease-out;
+		}
+	}
+	@keyframes wc-consent-in {
+		from {
+			transform: translateY(100%);
+		}
+	}
+	.wc-consent-dialog {
+		/* Centered (CSS resets such as Tailwind's zero dialog margins). */
+		margin: auto;
+		width: min(40rem, calc(100vw - 32px));
+		max-height: calc(100dvh - 32px);
+		overflow: auto;
+		padding: 24px;
+		border: 0;
+		border-radius: 12px;
+		box-shadow: 0 8px 40px rgb(0 0 0 / 0.25);
+	}
+	.wc-consent-dialog::backdrop {
+		background: rgb(0 0 0 / 0.5);
+	}
+	.wc-consent-dialog-head {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 16px;
+	}
+	.wc-consent-close {
+		display: inline-flex;
+		padding: 4px;
+		border: 0;
+		border-radius: 6px;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+	}
+	.wc-consent-categories {
+		display: grid;
+		gap: 16px;
+		margin: 20px 0;
+		padding: 0;
+		list-style: none;
+	}
+	.wc-consent-categories li {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 12px;
+		align-items: start;
+	}
+	.wc-consent-categories input {
+		width: 20px;
+		height: 20px;
+		margin: 2px 0 0;
+		accent-color: currentColor;
+	}
+	.wc-consent-categories label {
+		font-weight: 700;
+	}
+	.wc-consent-always,
+	.wc-consent-vendors,
+	.wc-consent-note {
+		opacity: 0.8;
+	}
+	.wc-consent-note {
+		margin-bottom: 20px;
+	}
+	.wc-consent-dialog .wc-consent-actions {
+		justify-content: flex-end;
+	}
+</style>

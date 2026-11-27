@@ -1,0 +1,13 @@
+id: about
+title: About
+path: /about
+blocks:
+  - type: Text
+    id: 0qe4swsu
+    layout: {container: default, padding: {base: {top: 16, bottom: 16}}}
+    body: <h1>About</h1><p>A second page; the language links follow its translation.</p>
+  # Loads its entries when the page renders (blocks/Feed).
+  - type: Feed
+    id: 85prkwaw
+    layout: {container: default, padding: {base: {bottom: 16}}}
+    heading: News

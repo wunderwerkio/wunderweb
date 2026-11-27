@@ -1,0 +1,24 @@
+id: home
+title: Home
+path: /
+blocks:
+  - type: Text
+    id: b6k8dnt5
+    layout: {container: default, padding: {base: {top: 16, bottom: 16}}}
+    body: <h1>Hallo (de)</h1><p>Edit content/de/pages/home.yaml</p>
+    after:
+      - type: Buttons
+        id: 9fxza2s4
+        items:
+          - {label: Mehr über uns, url: "page:about", variant: primary}
+  # Remote videos wait behind a consent gate until external media are allowed.
+  - type: Media
+    id: bzqzh5tq
+    layout: {container: default}
+    asset: {kind: remote-video, url: "https://www.youtube.com/watch?v=2oV060kNYfU", alt: Video}
+    aspectRatio: "16:9"
+  - type: Media
+    id: 01grv0xy
+    layout: {container: default, padding: {base: {top: 8, bottom: 16}}}
+    asset: {kind: remote-video, url: "https://vimeo.com/76979871", alt: Vimeo video}
+    aspectRatio: "16:9"

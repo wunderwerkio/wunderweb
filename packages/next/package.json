@@ -1,0 +1,48 @@
+{
+	"name": "@wunderweb/next",
+	"version": "0.4.0",
+	"description": "Next.js 16 App Router adapter.",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wunderwerkio/wunderweb.git",
+		"directory": "packages/next"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org",
+		"access": "public",
+		"provenance": true
+	},
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
+		},
+		"./sitemap": {
+			"types": "./dist/sitemap.d.mts",
+			"import": "./dist/sitemap.mjs"
+		}
+	},
+	"scripts": {
+		"build": "tsdown src/index.tsx src/sitemap.ts --dts --format esm --external next --external react",
+		"typecheck": "tsc -p ."
+	},
+	"dependencies": {
+		"@wunderweb/core": "workspace:*",
+		"@wunderweb/react": "workspace:*"
+	},
+	"peerDependencies": {
+		"next": "^16",
+		"react": "^19"
+	},
+	"devDependencies": {
+		"@types/react": "19.3.0",
+		"next": "^16.3.6",
+		"react": "^19.3.0",
+		"react-dom": "19.3.0"
+	}
+}

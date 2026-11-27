@@ -1,0 +1,22 @@
+in: [Leaf, Inline]
+traits: [Box, Surround, Linkable]
+fields:
+  asset: Asset
+  aspectRatio?: {type: AspectRatio, doc: Crop to ratio. Unset = natural size.}
+  fit?: {type: Fit, default: cover, doc: With aspectRatio or fill.}
+  fill?: {type: boolean, doc: "Cover the whole cell height, e.g. a grid item spanning rows."}
+  rounded?: Radius
+  shadow?: Shadow
+  caption?: RichText
+  zoom?: {type: boolean, doc: Image opens in a lightbox.}
+  play?: {type: PlayMode, default: inline, doc: Video only.}
+  controls?: {type: boolean, default: true, doc: "Video only. false = muted autoplaying loop without controls."}
+  loop?: {type: boolean, default: false, doc: Video only.}
+  muted?: {type: boolean, default: false, doc: Video only.}
+types:
+  Fit: {enum: [cover, contain]}
+  PlayMode: {enum: [inline, lightbox], doc: "lightbox = poster with play button; the video opens in an overlay."}
+rules:
+  - only: [controls, loop, muted, play]
+    when: {asset.kind: [video, remote-video]}
+    message: video options on an image

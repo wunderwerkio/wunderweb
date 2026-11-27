@@ -1,0 +1,7 @@
+# The default block registry, laid out as a project so that CI compiles and
+# type-checks every item against the core alone (no theme, no content):
+# `wunderweb generate --check` here, then `tsc`. Items: blocks/<Name>/ with
+# item.yaml (manifest) next to the files a project installs.
+schema: 1
+locales: [en]
+defaultLocale: en

@@ -1,0 +1,8 @@
+id: privacy
+title: Datenschutz
+path: /datenschutz
+blocks:
+  - type: Text
+    id: m8a1wv80
+    layout: {container: default, padding: {base: {top: 16, bottom: 16}}}
+    body: '<h1>Datenschutz</h1><p>Ihre Auswahl ändern Sie jederzeit in den <a href="consent:settings">Cookie-Einstellungen</a>.</p>'

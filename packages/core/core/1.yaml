@@ -1,0 +1,364 @@
+# wunderweb core schema, major version 1: the contract. Compile with
+# `wunderweb generate`.
+#
+# The contract says what a page accepts, not which blocks exist. It holds the
+# roles and how they nest, the traits, token types and scales, primitive and
+# object types, the rich text / SVG vocabulary and the mechanisms (Page,
+# Fragment, Include with slots, page: links, dialogs). Every block other than
+# Include is project-owned: it lives in the project's blocks directory
+# (blocks/<Name>/block.yaml), usually installed from a registry.
+#
+# Published versions are immutable except for additive (minor) changes:
+# new optional fields, new types. Breaking changes go to 2.yaml with a
+# content migration.
+#
+# Notation
+#   name: Type                     required (present and non-empty)
+#   name?: Type                    optional
+#   name?: {type: Type, default: …, doc: …}   long form
+#
+# Type expressions
+#   Name            type, role or block
+#   A | B           union
+#   T[]             list
+#   Responsive<T>   per-breakpoint map {base?: T, md?: T, …}; mobile first, a value applies upward
+#   builtins        string, number, integer, boolean
+#
+# Block instance = {type: <BlockName>, id?: string, …fields}.
+# Block `defaults` apply to unset fields. Merge: objects merge key by key,
+# Responsive<T> maps and lists are replaced as a whole (a set `ratio: {lg: …}`
+# drops a default `ratio: {sm: …}`). A Responsive value without `base` means
+# the CSS initial value below its first breakpoint, not the default; lint
+# rejects one that drops a default's `base` (restate it, or `base: {}`).
+#
+# A project theme (theme.yaml) sets token values (colors, button variants,
+# breakpoints, container sizes), adds optional fields to core object types
+# (`extend`) and extends the rich text vocabulary.
+#
+# There are no escape hatches: no class names, no inline CSS, and rich text
+# is limited to a typography vocabulary (see richText).
+#
+# Nesting is fixed by the roles (no recursion). A block joins roles with
+# `in`; a block's slots accept only lower roles:
+#
+#   Page / Fragment
+#   └─ PageBlock   Row | Include | blocks with in: [PageBlock]   (e.g. Section)
+#      └─ Row      Content | in: [Row]                           (e.g. SideBySide, Tiles)
+#         └─ Content  Leaf | in: [Content]                       (e.g. Stack)
+#            └─ Leaf  in: [Leaf]                                 (e.g. Text, Card)
+#   Surround slots (before / after) on any block: Inline (in: [Inline]).
+
+version: 1
+roots: [Page, Fragment]
+
+# ----------------------------------------------------------------- roles
+
+# Ordered from the highest to the lowest. Members are roles or blocks;
+# project blocks join with `in`. A role nobody joins accepts nothing.
+roles:
+  PageBlock:
+    doc: Top-level block of a page or fragment.
+    members: [Row, Include]
+  Row:
+    doc: Block that lays out Content side by side or in a grid.
+    members: [Content]
+  Content:
+    doc: Block holding Leaf blocks, or a Leaf.
+    members: [Leaf]
+  Leaf:
+    doc: Content block without block slots (text, media, card, …).
+    members: []
+  Inline:
+    doc: Block allowed in the surround slots (before / after) of any block.
+    members: []
+
+# ----------------------------------------------------------------- rich text
+
+# Closed vocabulary for RichText: typography and vertical rhythm only. Box
+# layout (flex, width, shadow, position, …) belongs to blocks. Themes add
+# classes (type scale, highlights, inline buttons) and data attributes.
+richText:
+  elements: [p, h1, h2, h3, h4, h5, h6, ul, ol, li, strong, b, em, i, u, s, sup, sub, a, br, span, hr, blockquote, section, table, thead, tbody, tfoot, tr, th, td, caption]
+  attributes: [href, target, rel, title, id, scope, colspan, rowspan, class, start, reversed]
+  # measure-*: max width of one block-level text element (p, h1-h6, li, blockquote),
+  # the element box centered in the text column; its text keeps its alignment.
+  classes: [text-align-left, text-align-center, text-align-right, text-align-justify, font-bold,
+            measure-xs, measure-sm, measure-md, measure-lg, measure-xl, measure-2xl, measure-3xl, measure-4xl, measure-5xl,
+            mt-0, mt-1, mt-2, mt-3, mt-4, mt-5, mt-6, mt-8, mt-10, mt-12, mt-16,
+            mb-0, mb-1, mb-2, mb-3, mb-4, mb-5, mb-6, mb-8, mb-10, mb-12, mb-16, m-0]
+  classPatterns: []
+  # Classes marking an inline call-to-action link; only allowed inside prose.
+  buttonClasses: []
+  # data-* attributes allowed on any element (editor bookkeeping, no styling).
+  dataAttributes: []
+  # SVG: shapes and paint servers only - no text, images, links, styles or scripts.
+  svgElements: [svg, g, defs, path, rect, circle, ellipse, line, polyline, polygon, clipPath, mask, linearGradient, radialGradient, stop, pattern, use, title, symbol]
+  svgAttributes: [viewBox, xmlns, width, height, fill, stroke, stroke-width, stroke-linecap, stroke-linejoin, stroke-miterlimit, stroke-dasharray, d, x, y, x1, y1, x2, y2, cx, cy, r, rx, ry, points, transform, opacity, fill-opacity, stroke-opacity, fill-rule, clip-rule, clip-path, mask, id, href, offset, stop-color, stop-opacity, gradientUnits, gradientTransform, patternUnits, preserveAspectRatio, aria-hidden, role, focusable, version]
+
+# ----------------------------------------------------------------- types
+
+types:
+  # Tokens (themes replace these)
+
+  Breakpoint:
+    doc: Min viewport width in px.
+    enum: {base: 0, sm: 640, md: 768, lg: 1024, xl: 1280, 2xl: 1536}
+
+  Color:
+    doc: Theme color token.
+    enum: [white, black]
+
+  ButtonVariant:
+    doc: Theme button style.
+    enum: [primary, secondary]
+
+  ContainerSize:
+    doc: Content width of a box; its background stays full width.
+    enum: [default]
+
+  # Scales
+
+  Spacing:
+    doc: Spacing scale step, 1 = 0.25rem (4px).
+    enum: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 96]
+
+  SignedSpacing:
+    doc: Spacing step; negative pulls the box over its neighbour.
+    enum: [-96, -80, -72, -64, -56, -48, -40, -32, -28, -24, -20, -16, -12, -10, -8, -6, -4, -3, -2, -1, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 72, 80, 96]
+
+  Radius: {enum: [none, sm, md, lg, xl, 2xl, 3xl, full], doc: Corner radius token.}
+  Shadow: {enum: [none, sm, md, lg, xl, 2xl], doc: Elevation token.}
+  NamedWidth: {enum: [xs, sm, md, lg, xl, 2xl, 3xl, 4xl, 5xl, 6xl, 7xl, prose], doc: Named max width (Tailwind scale).}
+  NamedHeight: {enum: [25vh, 50vh, 75vh, 100vh], doc: Share of the viewport height.}
+  Px: {type: integer, min: 0, max: 4000, doc: CSS pixels.}
+  MaxWidth: NamedWidth | Px
+  MinHeight: NamedHeight | Px
+  Size: {enum: [sm, md, lg, xl]}
+
+  # Primitives
+
+  Hex: {type: string, pattern: "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$", doc: "CSS hex color, e.g. #f5ede4."}
+  Paint: Color | Hex
+  Opacity: {type: number, min: 0, max: 1}
+  Blur: {type: number, min: 0, doc: Blur radius in px.}
+  Span: {type: integer, min: 1, max: 24}
+  Percent: {type: number, min: 0, max: 100}
+  Seconds: {type: integer, min: 1, max: 600}
+  BorderWidth: {type: integer, min: 1, max: 8, doc: px}
+  RichText: {type: string, doc: "HTML limited to the rich text vocabulary."}
+  Svg: {type: string, doc: "Inline SVG markup: one <svg> root, no scripts, handlers or root style."}
+  Url: {type: string, pattern: "^(https?://|/(?!/)|#|mailto:|tel:|page:[a-z][a-z0-9-]*(#[a-z][a-z0-9_-]*)?$|consent:settings$)", doc: "Absolute http(s) URL, root-relative path, mailto:, tel:, #anchor, page:<id>[#anchor] (page in the current locale) or consent:settings (opens the cookie settings; needs a consent section in the site config)."}
+  Anchor: {type: string, pattern: "^[a-z][a-z0-9_-]*$", doc: "Element id, target of #anchor links."}
+  Path: {type: string, pattern: "^/([a-z0-9][a-z0-9._~-]*(/[a-z0-9][a-z0-9._~-]*)*)?$", doc: "Site path without locale prefix and trailing slash."}
+  Ref: {type: string, pattern: "^[a-z][a-z0-9-]*$", doc: Fragment id.}
+  AspectRatio: {type: string, pattern: "^[1-9][0-9]?:[1-9][0-9]?$", doc: "width:height, e.g. 16:9."}
+
+  # Enums
+
+  BackgroundPosition:
+    doc: cover | contain | fill stretch the asset; anchors keep its natural size.
+    enum: [cover, contain, fill, top-left, top, top-right, left, center, right, bottom-left, bottom, bottom-right]
+  Corner: {enum: [top-left, top, top-right, left, center, right, bottom-left, bottom, bottom-right]}
+  AssetKind: {enum: [image, video, remote-video], doc: remote-video = YouTube / Vimeo URL.}
+  LinkTarget: {enum: [_self, _blank]}
+  Align: {enum: [start, center, end, stretch]}
+  Justify: {enum: [start, center, end, between]}
+  TextAlign: {enum: [start, center, end, justify]}
+  EdgeShape: {enum: [straight, wave, slant, curve], doc: Shape of a box edge; cuts into the neighbour.}
+  GradientKind: {enum: [linear, radial]}
+  Shape: {enum: [rect, rounded, circle]}
+  LineStyle: {enum: [solid, dashed, dotted]}
+
+  # Objects
+
+  Asset:
+    doc: "Image or video. A root-relative url resolves against the configured asset base (e.g. an S3 bucket)."
+    fields:
+      kind: AssetKind
+      url: Url
+      alt?: string
+      width?: integer
+      height?: integer
+      poster?: {type: Url, doc: Video preview image.}
+
+  Link:
+    fields:
+      url: Url
+      label?: string
+      target?: LinkTarget
+      rel?: string
+
+  Button:
+    doc: "Needs url or opens, unless the field holding it is marked actionOptional (e.g. a form submit)."
+    fields:
+      label: {type: string, doc: Visible text; with iconOnly the accessible name.}
+      url?: {type: Url, doc: "#anchor scrolls, e.g. to a form."}
+      opens?: {type: Ref, doc: "Fragment shown in a dialog; the page renders each dialog once. With an #anchor url the dialog is the fallback, used when the anchor is not on the page."}
+      iconOnly?: {type: boolean, doc: "Show only the icon, e.g. a scroll-down chevron."}
+      variant?: ButtonVariant
+      icon?: Svg
+      size?: Size
+      target?: LinkTarget
+      rel?: string
+      title?: string
+
+  Icon:
+    doc: SVG or short text glyph (e.g. a step number). Needs svg or text.
+    fields:
+      svg?: Svg
+      text?: {type: string, doc: "Glyph instead of an SVG, e.g. \"1\"."}
+      color?: Paint
+      background?: {type: Paint, doc: Fills the shape behind the icon.}
+      shape?: Shape
+      size?: Size
+
+  Sides:
+    fields:
+      top?: Spacing
+      right?: Spacing
+      bottom?: Spacing
+      left?: Spacing
+
+  SignedSides:
+    doc: Negative only vertically (overlap with the block above / below).
+    fields:
+      top?: SignedSpacing
+      right?: Spacing
+      bottom?: SignedSpacing
+      left?: Spacing
+
+  BoxLayout:
+    doc: "Inside of the box: its children are stacked (before, content, after)."
+    fields:
+      container?: {type: ContainerSize, doc: Constrain the children to the page container; background stays full width.}
+      alignX?: {type: Align, doc: Horizontal alignment of the children.}
+      alignY?: {type: Justify, doc: "Vertical distribution of the children (needs height, e.g. minHeight)."}
+      padding?: Responsive<Sides>
+      gap?: {type: Responsive<Spacing>, doc: Gap between the children.}
+      minHeight?: Responsive<MinHeight>
+      textAlign?: {type: Responsive<TextAlign>, doc: "Inherited by all text in the box. A text-align-* class on an element wins over it (unless a block documents otherwise)."}
+      clip?: {type: boolean, doc: "Clip overflowing children, e.g. decorations."}
+
+  Placement:
+    doc: "Outside of the box: how it sits in its parent."
+    fields:
+      maxWidth?: Responsive<MaxWidth>
+      x?: {type: Responsive<Align>, doc: "Horizontal self-alignment, e.g. center a narrow block."}
+      y?: {type: Responsive<Align>, doc: Vertical self-alignment in a row or cell.}
+      margin?: Responsive<SignedSides>
+      colSpan?: {type: Responsive<Span>, doc: "Only in slots whose block allows it (rule childPlace), e.g. grid tiles."}
+      rowSpan?: {type: Responsive<Span>, doc: "Only in slots whose block allows it (rule childPlace), e.g. grid tiles."}
+
+  GradientStop:
+    fields:
+      color: Paint
+      at?: {type: Percent, doc: Position of the stop.}
+      opacity?: Opacity
+
+  Gradient:
+    fields:
+      kind: GradientKind
+      angle?: {type: number, doc: "Linear only, degrees; 180 = top to bottom."}
+      center?: {type: Corner, doc: Radial only.}
+      stops: GradientStop[]
+
+  Background:
+    doc: Layers, back to front - base, asset, color overlay, gradients, content.
+    fields:
+      base?: {type: Color, doc: Fill behind the asset (shows while it loads or where it is transparent).}
+      color?: {type: Paint, doc: Overlay color over the asset; with opacity a tint.}
+      asset?: Asset
+      position?: {type: BackgroundPosition, default: cover}
+      opacity?: {type: Opacity, doc: "Applies to the color overlay if set, else to the asset."}
+      blur?: {type: Blur, doc: Blurs the asset.}
+      gradients?: {type: "Gradient[]", doc: First is on top.}
+      parallax?: {type: boolean, doc: The asset scrolls slower than the page.}
+
+  Border:
+    fields:
+      width: BorderWidth
+      color?: Paint
+      style?: LineStyle
+
+  Appearance:
+    doc: Unset = block default.
+    fields:
+      textColor?: Color
+      rounded?: Radius
+      shadow?: Shadow
+      border?: Border
+
+  Edges:
+    fields:
+      top?: EdgeShape
+      bottom?: EdgeShape
+
+  Decoration:
+    doc: "Graphic pinned to the box, e.g. an ornament overlapping its edge. Takes no space, never clipped by its own box; clipped by the nearest ancestor with layout.clip."
+    fields:
+      svg: Svg
+      anchor: Corner
+      offsetX?: {type: integer, doc: "px from the anchored side; negative = outside the box."}
+      offsetY?: {type: integer, doc: px from the anchored side.}
+      width?: Px
+      visible?: Responsive<boolean>
+
+  Slot:
+    doc: Override for Include.with.
+    fields:
+      slot: {type: Anchor, doc: Slot id in the fragment.}
+      block: {type: PageBlock, doc: "Replacement: any PageBlock-role block except Include; must be allowed where the slot sits (checked after substitution)."}
+
+  Page:
+    doc: "Locale = content folder. Pages with the same id in different locales are translations."
+    fields:
+      id?: {type: Ref, doc: "Translation id, shared across locales; target of page:<id> links. Unset = file name."}
+      title: string
+      description?: {type: string, doc: Meta description.}
+      image?: {type: Asset, doc: Social preview image.}
+      noindex?: boolean
+      path: {type: Path, doc: "URL path without the locale prefix, e.g. /meine-seite; / = home."}
+      chrome?: {type: boolean, default: true, doc: false = no site header and footer.}
+      header?: {type: Ref, doc: Header fragment. Unset = site default.}
+      footer?: {type: Ref, doc: Footer fragment. Unset = site default.}
+      blocks: PageBlock[]
+
+  Fragment:
+    doc: Reusable blocks, placed with Include (shared sections, header, footer).
+    fields:
+      fragment: Ref
+      title?: string
+      blocks: PageBlock[]
+
+# ----------------------------------------------------------------- traits (field groups mixed into blocks)
+
+traits:
+  Box:
+    anchor?: Anchor
+    slot?: {type: Anchor, doc: "In a fragment: id a page can replace via Include.with."}
+    layout?: BoxLayout
+    place?: Placement
+    background?: Background
+    appearance?: Appearance
+    edges?: Edges
+    decorations?: Decoration[]
+    visible?: {type: Responsive<boolean>, doc: "Per breakpoint, e.g. {base: false, lg: true}. Hides the whole block including before / after and background."}
+
+  Surround:
+    before?: Inline[]
+    after?: Inline[]
+
+  Linkable:
+    link?: {type: Link, doc: Makes the whole block clickable.}
+
+# ----------------------------------------------------------------- blocks
+
+# The only core block: a mechanism (fragment expansion, slots), not layout.
+blocks:
+  Include:
+    doc: Places a fragment's blocks here.
+    fields:
+      ref: Ref
+      with?:
+        type: "Slot[]"
+        doc: "Per-page content for slots of the fragment: a block with the same slot id is replaced."

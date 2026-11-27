@@ -1,0 +1,11 @@
+tokens:
+  Color:
+    white: "#ffffff"
+    ink: "#1b1b1b"
+  ButtonVariant: [primary]
+  ContainerSize:
+    default: {max: 1280px, gutter: {base: 16px}}
+  Breakpoint: {md: 768}
+extend: {}
+richText:
+  classes: []

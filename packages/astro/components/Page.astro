@@ -1,0 +1,21 @@
+---
+// The content of a page: header, main, footer and dialogs, rendered by the
+// project's block components (server only, no hydration). In edit mode the
+// page is annotated for the editor and refreshes in place.
+//
+//   <body><Page page={page} registry={createRegistry(components)} /></body>
+import type { SourcePage } from "@wunderweb/core";
+import type { Registry } from "@wunderweb/react";
+
+import { refreshScript, renderPage } from "../dist/index.mjs";
+
+interface Props {
+	page: SourcePage;
+	registry: Registry;
+}
+
+const { page, registry } = Astro.props;
+const html = await renderPage(page, registry);
+---
+<Fragment set:html={html} />
+{page.annotate && <script is:inline set:html={refreshScript} />}

@@ -1,0 +1,31 @@
+{
+	"name": "@wunderweb/cli",
+	"version": "0.4.0",
+	"description": "wunderweb CLI: init, generate, lint, format, add, update, diff, add-block.",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wunderwerkio/wunderweb.git",
+		"directory": "packages/cli"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org",
+		"access": "public",
+		"provenance": true
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsdown src/index.ts --format esm",
+		"typecheck": "tsc -p ."
+	},
+	"bin": {
+		"wunderweb": "./dist/index.mjs"
+	},
+	"dependencies": {
+		"@wunderweb/core": "workspace:*",
+		"yaml": "^2.9.1"
+	}
+}

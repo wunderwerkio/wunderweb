@@ -1,0 +1,65 @@
+# Opens a version PR from pending changesets; once it is merged, publishes
+# @wunderweb/* to npmjs.com with provenance, pushes the release tags (the
+# CLI installs registry blocks at them) and checks the release as a site
+# gets it.
+#
+# Needs the repository secret NPM_TOKEN: an npm automation token of the org
+# @wunderweb. Provenance needs a public repository (wunderwerkio/wunderweb).
+name: Release
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  # npm provenance: the OIDC token that signs where a package was built.
+  id-token: write
+
+# One release at a time: publish, tags and verification of one push finish
+# before the next starts.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubicloud-standard-2-ubuntu-2404
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
+      - run: pnpm install --frozen-lockfile
+      # Built before the publish token is in any step's environment.
+      - run: pnpm build
+      # pnpm does not expand ${NODE_AUTH_TOKEN} in the repository's .npmrc
+      # (GHSA-3qhv-2rgh-x77r), only in a user-level one: the publish token
+      # goes there (the variable, not the token, is written).
+      - name: registry.npmjs.org auth
+        run: echo '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' >> ~/.npmrc
+      # Pinned: the step holds the npm publish token.
+      - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        id: changesets
+        with:
+          publish: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
+      # `changeset publish` tags what it published, locally; the action does
+      # not see the tags in pnpm's output and pushes none. The CLI installs
+      # registry blocks at these tags. New tags = something was published.
+      - name: New release tags
+        id: tags
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          new="$(git tag --points-at HEAD)"
+          echo "new=${new:+true}" >> "$GITHUB_OUTPUT"
+      - name: Push release tags
+        if: steps.tags.outputs.new == 'true'
+        run: git push origin --tags
+      # The release as a site gets it: installed from npmjs without a token,
+      # built, every CLI command run.
+      - name: Verify the published packages
+        if: steps.tags.outputs.new == 'true'
+        run: scripts/verify-published.sh

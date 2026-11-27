@@ -1,0 +1,28 @@
+# Minimal Astro site from `wunderweb init --astro` (de, en): the CI build of
+# the Astro adapter. Docs: https://github.com/wunderwerkio/wunderweb
+schema: 1
+locales: [de, en]
+defaultLocale: de
+siteUrl: https://example.com
+chrome: {header: header, footer: footer}
+# Site stylesheets, checked by `generate`.
+css: [./src/styles/global.css]
+# Blocks are installed with `wunderweb add` from this repository's working
+# tree, so the example always uses the current registry items.
+registries:
+  - {name: wunderweb, url: ../.., path: registry/blocks, workingTree: true}
+# Consent: banner, settings dialog, gated remote videos, Google Consent Mode
+# (Advanced) and the Meta Pixel. Tags load only on `hosts` (browser tests
+# add 127.0.0.1 with WUNDERWEB_CONSENT_HOSTS).
+consent:
+  version: 1
+  privacy: "page:privacy"
+  hosts: [example.com, www.example.com]
+  categories:
+    statistics: [analytics_storage]
+    marketing: [ad_storage, ad_user_data, ad_personalization]
+    media: []
+  vendors:
+    google: {ids: [G-EXAMPLE123, AW-123456789]}
+    meta: {id: "1234567890", category: marketing}
+  style: {surface: paper, text: ink, choice: primary, quiet: secondary}

@@ -1,0 +1,58 @@
+{
+	"name": "@wunderweb/astro",
+	"version": "0.4.0",
+	"description": "Astro 7 adapter: integration, routes, head metadata, sitemap; content source (files, or the content service in a preview build).",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wunderwerkio/wunderweb.git",
+		"directory": "packages/astro"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org",
+		"access": "public",
+		"provenance": true
+	},
+	"keywords": [
+		"astro-integration",
+		"astro-component"
+	],
+	"files": [
+		"components",
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
+		},
+		"./Consent.astro": "./components/Consent.astro",
+		"./ConsentHead.astro": "./components/ConsentHead.astro",
+		"./Head.astro": "./components/Head.astro",
+		"./Page.astro": "./components/Page.astro"
+	},
+	"scripts": {
+		"build": "tsdown src/index.ts --dts --format esm --external astro --external react --external react-dom",
+		"typecheck": "tsc -p ."
+	},
+	"dependencies": {
+		"@wunderweb/core": "workspace:*",
+		"@wunderweb/react": "workspace:*",
+		"postcss": "^8.5.30",
+		"postcss-selector-parser": "^7.1.6"
+	},
+	"peerDependencies": {
+		"@astrojs/react": "^7",
+		"astro": "^7",
+		"react": "^19",
+		"react-dom": "^19"
+	},
+	"devDependencies": {
+		"@types/react": "19.3.0",
+		"@types/react-dom": "19.3.0",
+		"astro": "^7.3.7",
+		"react": "^19.3.0",
+		"react-dom": "19.3.0"
+	}
+}

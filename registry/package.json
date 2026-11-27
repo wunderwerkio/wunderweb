@@ -1,0 +1,22 @@
+{
+	"name": "wunderweb-registry",
+	"private": true,
+	"description": "Default block registry: every item compiled and type-checked against the core alone (empty theme).",
+	"type": "module",
+	"scripts": {
+		"typecheck": "tsc -p ."
+	},
+	"dependencies": {
+		"@wunderweb/core": "workspace:*",
+		"@wunderweb/react": "workspace:*",
+		"react": "19.3.0"
+	},
+	"devDependencies": {
+		"@types/react": "19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"@wunderweb/cli": "workspace:*",
+		"react-dom": "19.3.0",
+		"typescript": "^5.9.3",
+		"vitest": "^5.0.2"
+	}
+}

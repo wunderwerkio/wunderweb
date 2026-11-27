@@ -1,0 +1,31 @@
+---
+// A custom route next to the content pages: every page of the content
+// source. In a preview build it lists the changeset's pages, drafts
+// included.
+import "../styles/global.css";
+
+import { previewHeaders, sourceFor } from "@wunderweb/astro";
+
+const index = await sourceFor(Astro.request).index();
+previewHeaders(Astro.response.headers);
+---
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Site index</title>
+	</head>
+	<body>
+		<main class="mx-auto max-w-3xl px-4 py-16">
+			<h1 class="text-3xl font-semibold">Site index</h1>
+			<ul class="mt-4 list-disc pl-5" data-site-index="">
+				{index.pages.map((p) => (
+					<li>
+						<a href={p.url}>{p.url}</a> ({p.locale})
+					</li>
+				))}
+			</ul>
+		</main>
+	</body>
+</html>

@@ -1,0 +1,30 @@
+provenance: { registry: wunderweb, item: Tiles, ref: working-tree, commit: 6382ca3aab4fb2a46886dbf538dc8fee0df8cbbe, schema: 1 }
+in: [Row]
+traits: [Box, Surround]
+fields:
+  items: Content[]
+  grid?: TileGrid
+types:
+  Columns: {type: integer, min: 1, max: 24}
+  TileMode:
+    doc: "grid = equal columns, cells may span; flex = wrapping row; masonry = columns filled top-down."
+    enum: [grid, flex, masonry]
+  TileGrid:
+    fields:
+      mode?: {type: TileMode, default: grid}
+      columns?: {type: Responsive<Columns>, doc: grid and masonry.}
+      gap?: Responsive<Spacing>
+      margin?: Responsive<Sides>
+      alignX?: {type: Justify, doc: flex only.}
+      alignY?: {type: Align, doc: flex only.}
+      equalHeight?: {type: boolean, doc: flex only.}
+      visible?: {type: Responsive<boolean>, doc: "Show the items per breakpoint; before / after and the box stay."}
+rules:
+  # Spans only mean something in a grid.
+  - childPlace: [colSpan, rowSpan]
+    slot: items
+    when: {grid.mode: [grid]}
+  - only: [grid.columns]
+    when: {grid.mode: [grid, masonry]}
+  - only: [grid.alignX, grid.alignY, grid.equalHeight]
+    when: {grid.mode: [flex]}

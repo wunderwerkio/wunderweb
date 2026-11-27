@@ -1,0 +1,13 @@
+id: about
+title: Über uns
+path: /ueber-uns
+blocks:
+  - type: Text
+    id: 7myesbhr
+    layout: {container: default, padding: {base: {top: 16, bottom: 16}}}
+    body: <h1>Über uns</h1><p>A second page; the language links follow its translation.</p>
+  # Lädt seine Einträge beim Rendern der Seite (blocks/Feed).
+  - type: Feed
+    id: fsf34vdm
+    layout: {container: default, padding: {base: {bottom: 16}}}
+    heading: Neuigkeiten

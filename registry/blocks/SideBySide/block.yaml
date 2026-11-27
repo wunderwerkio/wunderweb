@@ -1,0 +1,20 @@
+doc: Two columns.
+in: [Row]
+traits: [Box, Surround]
+fields:
+  start: Content
+  end?: {type: Content, doc: Without end the start column still takes its ratio share; the end column stays empty.}
+  split?: {type: Split, doc: "Unset ratio = stacked at every width."}
+types:
+  SplitRatio: {type: string, pattern: "^[1-9][0-9]?:[1-9][0-9]?$", doc: "start:end column proportion, parts sum to at most 24, e.g. 7:5."}
+  Split:
+    doc: Columns stay stacked below the first breakpoint with a ratio.
+    fields:
+      ratio?: Responsive<SplitRatio>
+      gap?: Responsive<Spacing>
+      reverse?: {type: Responsive<boolean>, doc: "Show end left of start. Stacked order stays start, end."}
+      alignY?: {type: Align, doc: Vertical alignment of the two columns.}
+rules:
+  # Ratio parts must fit the 24 column grid.
+  - ratioMax: 24
+    field: split.ratio

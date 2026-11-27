@@ -1,0 +1,8 @@
+doc: "Entries loaded at render time from outside the content (EXAMPLE_FEED_URL, else feed.json next to this file). The block that loads external data in the preview proof of concept."
+in: [Leaf]
+traits: [Box, Surround]
+fields:
+  heading: string
+  limit?: {type: Limit, default: 3}
+types:
+  Limit: {type: integer, min: 1, max: 12}

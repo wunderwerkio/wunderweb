@@ -1,0 +1,5 @@
+in: [PageBlock]
+fields:
+  title: string
+  body?: RichText
+  label?: {type: string, deprecated: true, doc: Use title.}

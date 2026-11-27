@@ -1,0 +1,11 @@
+doc: "Avatar(s) with name and role, e.g. quote author or trust badge."
+in: [Leaf, Inline]
+traits: [Box]
+fields:
+  name: string
+  role?: string
+  avatars?: {type: "Asset[]", doc: More than one = overlapping stack.}
+  avatarShape?: {type: Shape, default: circle}
+  rating?: Stars
+types:
+  Stars: {type: number, min: 0, max: 5}

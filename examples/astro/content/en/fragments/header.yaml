@@ -1,0 +1,6 @@
+fragment: header
+blocks:
+  - type: Text
+    id: cg83762r
+    layout: {container: default, padding: {base: {top: 4, bottom: 4}}}
+    body: <p><a href="page:home">Home</a></p>

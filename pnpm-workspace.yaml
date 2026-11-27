@@ -1,0 +1,12 @@
+packages:
+  - packages/*
+  - registry
+  - examples/astro
+  - examples/astro-kit
+  - examples/kit
+allowBuilds:
+  esbuild: true
+  sharp: true
+  "@tailwindcss/oxide": true
+minimumReleaseAgeExclude:
+  - astro@7.3.7

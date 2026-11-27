@@ -1,0 +1,18 @@
+---
+// Head part of the consent script: data layer, Google Consent Mode default
+// and the stored choice, then the Google tags (allowed hosts only). Put it
+// first in <head>, before any other script. Renders nothing in edit mode
+// or without a consent config.
+//
+//   <head><meta charset="utf-8" /><ConsentHead page={page} /> …</head>
+import type { SourcePage } from "@wunderweb/core";
+
+import { consentHeadOf } from "../dist/index.mjs";
+
+interface Props {
+	page: SourcePage;
+}
+
+const script = consentHeadOf(Astro.props.page);
+---
+{script && <script is:inline set:html={script} />}

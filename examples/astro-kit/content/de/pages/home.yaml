@@ -1,0 +1,10 @@
+title: Start
+path: /
+blocks:
+  - type: Text
+    id: wmqm4t3y
+    body: <h1>Blöcke aus einem Paket</h1>
+  - type: Callout
+    id: l0ypxks7
+    title: Aus dem Kit
+    body: <p>Dieser Block kommt aus dem Paket @example/kit.</p>

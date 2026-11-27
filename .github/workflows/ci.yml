@@ -1,0 +1,58 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    # Ubicloud (org rule); 4 vCPU for the example builds and browser tests.
+    runs-on: ubicloud-standard-4-ubuntu-2404
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # `changeset status` compares against main.
+          fetch-depth: 0
+      - uses: jdx/mise-action@v2
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      # Pending changesets must make a release plan. A dry run
+      # of `changeset version`, without its "changed without a changeset" rule.
+      - name: Changesets make a release plan
+        run: |
+          # Nothing to check without pending changesets (version would fail).
+          if ls .changeset/*.md | grep -qv README.md; then
+            pnpm changeset version --snapshot ci
+            git checkout -- . && git clean -fdq .changeset
+          fi
+      # Packages import each other through dist/.
+      - run: pnpm build
+      # The release as a dry run: the release plan, and every public package
+      # packed and checked for npmjs (nothing is sent; --force: also a
+      # version that is published already).
+      - name: Publish dry run
+        run: |
+          # The plan of pending changesets (without any, a PR that changes
+          # only the private service needs none).
+          if ls .changeset/*.md | grep -qv README.md; then
+            # A PR checks out a merge commit: `main` (baseBranch) is only
+            # origin/main there. On main itself the branch exists already.
+            git branch -f main origin/main 2>/dev/null || true
+            pnpm changeset status
+          fi
+          pnpm --filter "./packages/{core,cli,react,astro,next}" publish --dry-run --no-git-checks --force
+      - run: pnpm typecheck
+      - run: pnpm test
+      # registry/: every item compiled against the core alone (empty theme).
+      - name: Generated files of the registry and the examples are current
+        run: |
+          CLI="$PWD/packages/cli/dist/index.mjs"
+          for d in registry $(dirname examples/*/wunderweb.config.yaml); do
+            (cd "$d" && node "$CLI" generate --check && node "$CLI" lint --quiet)
+          done
+      # The Astro examples (astro, astro-kit).
+      - name: Example apps build
+        run: |
+          for d in $(dirname examples/*/wunderweb.config.yaml); do
+            (cd "$d" && pnpm run build)
+          done

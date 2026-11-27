@@ -1,0 +1,11 @@
+provenance: { registry: wunderweb, item: Buttons, ref: working-tree, commit: 6382ca3aab4fb2a46886dbf538dc8fee0df8cbbe, schema: 1 }
+in: [Leaf, Inline]
+traits: [Box]
+fields:
+  items: Button[]
+  direction?: {type: Responsive<Direction>, default: {base: row}}
+  justify?: Responsive<Justify>
+  fullWidth?: {type: Responsive<boolean>, doc: Buttons fill the row.}
+  gap?: {type: Responsive<Spacing>, default: {base: 2}}
+types:
+  Direction: {enum: [row, column]}

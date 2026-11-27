@@ -1,0 +1,8 @@
+id: privacy
+title: Privacy
+path: /privacy
+blocks:
+  - type: Text
+    id: wcq9eiu6
+    layout: {container: default, padding: {base: {top: 16, bottom: 16}}}
+    body: '<h1>Privacy</h1><p>Change your choice at any time in the <a href="consent:settings">cookie settings</a>.</p>'

@@ -1,0 +1,8 @@
+in: [Leaf, Inline]
+traits: [Box]
+fields:
+  value: Stars
+  label?: string
+  logo?: {type: Asset, doc: "Source, e.g. the Google logo."}
+types:
+  Stars: {type: number, min: 0, max: 5}

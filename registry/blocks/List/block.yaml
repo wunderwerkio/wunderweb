@@ -1,0 +1,29 @@
+doc: "Items with marker or icon, title, text and action: check lists, feature lists, link rows."
+in: [Leaf, Inline]
+traits: [Box, Surround]
+fields:
+  items: ListItem[]
+  marker?: {type: ListMarker, default: bullet}
+  markerColor?: Paint
+  itemLayout?: {type: ItemLayout, default: stacked}
+  striped?: boolean
+  divided?: boolean
+  itemBackground?: {type: Paint, doc: Each item as a box.}
+  itemBorder?: Border
+  itemRounded?: Radius
+  gap?: Responsive<Spacing>
+types:
+  ListMarker: {enum: [none, bullet, number, check, thumbsup, icon]}
+  ItemLayout: {enum: [stacked, split], doc: "split = text at start, action at end (from sm)."}
+  ListItem:
+    doc: Needs title or body.
+    fields:
+      icon?: Icon
+      title?: string
+      body?: RichText
+      link?: Link
+      action?: Button
+rules:
+  - oneOf: [title, body]
+    at: items
+    message: every list item needs title or body

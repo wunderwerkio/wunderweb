@@ -1,0 +1,10 @@
+in: [Leaf, Inline]
+traits: [Box]
+fields:
+  items: Button[]
+  direction?: {type: Responsive<Direction>, default: {base: row}}
+  justify?: Responsive<Justify>
+  fullWidth?: {type: Responsive<boolean>, doc: Buttons fill the row.}
+  gap?: {type: Responsive<Spacing>, default: {base: 2}}
+types:
+  Direction: {enum: [row, column]}

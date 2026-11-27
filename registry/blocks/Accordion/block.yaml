@@ -1,0 +1,14 @@
+doc: One item open at a time.
+in: [Leaf]
+traits: [Box, Surround]
+fields:
+  items: AccordionItem[]
+  icon?: {type: AccordionIcon, default: chevron}
+  itemBackground?: Paint
+  itemTextColor?: Color
+types:
+  AccordionIcon: {enum: [chevron, plus]}
+  AccordionItem:
+    fields:
+      title: string
+      body: RichText

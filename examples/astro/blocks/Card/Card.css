@@ -1,0 +1,43 @@
+/* Card.textAlign: `wc-force-align` on the body makes text-align-* classes in
+   it inherit the forced alignment; `wc-align-inherit` lifts the override,
+   per breakpoint, e.g. "wc-force-align text-start md:wc-align-inherit". */
+.wc-force-align [class*="text-align-"] {
+	text-align: inherit;
+}
+.wc-align-inherit {
+	text-align: inherit;
+}
+.wc-align-inherit .text-align-left {
+	text-align: left;
+}
+.wc-align-inherit .text-align-center {
+	text-align: center;
+}
+.wc-align-inherit .text-align-right {
+	text-align: right;
+}
+.wc-align-inherit .text-align-justify {
+	text-align: justify;
+}
+
+/* Repeated per theme breakpoint by `wunderweb generate` (bp → md, lg, …). */
+@media (--wc-breakpoint) {
+	.bp\:wc-force-align [class*="text-align-"] {
+		text-align: inherit;
+	}
+	.bp\:wc-align-inherit {
+		text-align: inherit;
+	}
+	.bp\:wc-align-inherit .text-align-left {
+		text-align: left;
+	}
+	.bp\:wc-align-inherit .text-align-center {
+		text-align: center;
+	}
+	.bp\:wc-align-inherit .text-align-right {
+		text-align: right;
+	}
+	.bp\:wc-align-inherit .text-align-justify {
+		text-align: justify;
+	}
+}

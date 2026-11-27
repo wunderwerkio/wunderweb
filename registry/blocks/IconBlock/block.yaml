@@ -1,0 +1,5 @@
+doc: Standalone icon, e.g. a decorative scroll-down chevron. Not interactive.
+in: [Leaf, Inline]
+traits: [Box]
+fields:
+  icon: Icon

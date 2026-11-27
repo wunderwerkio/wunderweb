@@ -1,0 +1,16 @@
+{
+	"name": "@example/kit",
+	"private": true,
+	"type": "module",
+	"description": "Blocks shipped as an npm package (wunderweb config `packages`): the fixture of examples/astro-kit.",
+	"exports": {
+		"./blocks/*": "./blocks/*"
+	},
+	"wunderweb": {
+		"blocks": "./blocks"
+	},
+	"peerDependencies": {
+		"@wunderweb/react": "workspace:*",
+		"react": "^19"
+	}
+}

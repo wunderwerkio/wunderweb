@@ -1,0 +1,5 @@
+doc: Rows on one shared background.
+in: [PageBlock]
+traits: [Box, Surround]
+fields:
+  blocks: Row[]

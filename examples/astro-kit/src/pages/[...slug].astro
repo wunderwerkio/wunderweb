@@ -1,0 +1,30 @@
+---
+// Every content page; blocks from blocks/ and from the kit package alike.
+import "../styles/global.css";
+
+import { getStaticPaths as contentPaths, loadPage } from "@wunderweb/astro";
+import Head from "@wunderweb/astro/Head.astro";
+import Page from "@wunderweb/astro/Page.astro";
+import { createRegistry } from "@wunderweb/react";
+
+import { components } from "../../generated/components";
+
+export const getStaticPaths = () => contentPaths();
+
+const page = await loadPage(Astro.params.slug);
+if (!page) {
+	return new Response(null, { status: 404 });
+}
+const registry = createRegistry(components);
+---
+<!doctype html>
+<html lang={page.page.locale}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<Head page={page} />
+	</head>
+	<body>
+		<Page page={page} registry={registry} />
+	</body>
+</html>

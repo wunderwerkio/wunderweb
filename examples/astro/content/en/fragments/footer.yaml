@@ -1,0 +1,13 @@
+fragment: footer
+blocks:
+  - type: Text
+    id: qzaof6ig
+    background: {color: ink}
+    appearance: {textColor: white}
+    layout: {container: default, padding: {base: {top: 8, bottom: 8}}}
+    body: <p>© Footer · <a href="page:privacy">Privacy</a></p>
+    after:
+      - type: Buttons
+        id: a5oydd35
+        items:
+          - {label: Cookie settings, url: "consent:settings", variant: secondary, size: sm}

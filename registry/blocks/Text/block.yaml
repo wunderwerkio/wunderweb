@@ -1,0 +1,4 @@
+in: [Leaf, Inline]
+traits: [Box, Surround]
+fields:
+  body: RichText

@@ -1,0 +1,32 @@
+doc: Collection of images.
+in: [Leaf, Inline]
+traits: [Box, Surround]
+fields:
+  items: GalleryItem[]
+  mode?: {type: GalleryMode, default: grid}
+  columns?: {type: Responsive<Columns>, doc: grid and masonry.}
+  gap?: Responsive<Spacing>
+  itemHeight?: {type: Px, doc: "marquee: height of every item, e.g. logos."}
+  aspectRatio?: AspectRatio
+  shape?: Shape
+  grayscale?: boolean
+  zoom?: boolean
+  marquee?: {type: MarqueeOptions, doc: marquee only.}
+types:
+  Columns: {type: integer, min: 1, max: 24}
+  GalleryMode: {enum: [grid, masonry, marquee]}
+  GalleryItem:
+    fields:
+      asset: Asset
+      link?: Link
+      caption?: string
+  MarqueeOptions:
+    fields:
+      duration?: {type: Seconds, doc: Duration of one loop.}
+      fadeEdges?: boolean
+      pauseOnHover?: boolean
+rules:
+  - only: [columns]
+    when: {mode: [grid, masonry]}
+  - only: [marquee, itemHeight]
+    when: {mode: [marquee]}

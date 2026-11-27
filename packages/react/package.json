@@ -1,0 +1,47 @@
+{
+	"name": "@wunderweb/react",
+	"version": "0.4.0",
+	"description": "Framework-agnostic React runtime: registry, loader, renderer.",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wunderwerkio/wunderweb.git",
+		"directory": "packages/react"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org",
+		"access": "public",
+		"provenance": true
+	},
+	"files": [
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
+		},
+		"./bridge": {
+			"types": "./dist/bridge.d.mts",
+			"import": "./dist/bridge.mjs"
+		}
+	},
+	"scripts": {
+		"build": "node scripts/consent-script.mjs && tsdown src/index.tsx src/bridge.ts --dts --format esm --external react",
+		"typecheck": "tsc -p . && node scripts/core-types.mjs --check && node scripts/consent-script.mjs --check"
+	},
+	"dependencies": {
+		"@wunderweb/core": "workspace:*"
+	},
+	"peerDependencies": {
+		"react": "^19"
+	},
+	"devDependencies": {
+		"@types/react": "19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"esbuild": "0.28.2",
+		"react": "^19.3.0",
+		"react-dom": "19.3.0"
+	}
+}

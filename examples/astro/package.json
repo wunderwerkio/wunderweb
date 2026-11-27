@@ -1,0 +1,32 @@
+{
+	"name": "example-astro",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"generate": "wunderweb generate",
+		"lint:content": "wunderweb lint",
+		"typecheck": "astro check"
+	},
+	"dependencies": {
+		"@astrojs/node": "^11.1.13",
+		"@astrojs/react": "^7.0.1",
+		"@wunderweb/astro": "workspace:*",
+		"@wunderweb/core": "workspace:*",
+		"@wunderweb/react": "workspace:*",
+		"astro": "^7.3.7",
+		"react": "19.3.0",
+		"react-dom": "19.3.0"
+	},
+	"devDependencies": {
+		"@astrojs/check": "^0.9.10",
+		"@tailwindcss/vite": "4.3.3",
+		"@types/react": "19.3.0",
+		"@types/react-dom": "19.3.0",
+		"@wunderweb/cli": "workspace:*",
+		"tailwindcss": "4.3.3",
+		"typescript": "^5.9.3"
+	}
+}

@@ -1,0 +1,21 @@
+# Theme: token values, core type extensions and rich text additions.
+# Blocks live in blocks/<Name>/ (`wunderweb add <Item>`, `wunderweb add-block <Name>`).
+
+tokens:
+  Color:
+    white: "#ffffff"
+    black: "#000000"
+    ink: "#1b1b1b"
+    paper: "#faf8f5"
+    brand: "#c36e01"
+  ButtonVariant: [primary, secondary]
+  ContainerSize:
+    default: {max: 1280px, gutter: {base: 16px, md: 24px}}
+  Breakpoint: {sm: 640, md: 768, lg: 1024, xl: 1280}
+
+# Optional fields added to core object types, e.g.
+#   Button: {"subtitle?": {type: string, doc: Second label line.}}
+extend: {}
+
+richText:
+  classes: []

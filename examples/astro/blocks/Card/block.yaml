@@ -1,0 +1,15 @@
+provenance: { registry: wunderweb, item: Card, ref: working-tree, commit: 6382ca3aab4fb2a46886dbf538dc8fee0df8cbbe, schema: 1 }
+in: [Leaf]
+traits: [Box, Surround, Linkable]
+fields:
+  media?: {type: Media, doc: "Shown on top, bleeding to the card edges."}
+  icon?: Icon
+  iconPlacement?: {type: Responsive<IconPlacement>, default: {base: top}, doc: "Icon above the body, or beside it (start / end). Ignored with media (icon always on top)."}
+  textAlign?: {type: Responsive<ForcedAlign>, doc: "Forces the alignment of all body text, overriding text-align-* classes in it; inherit lifts the override."}
+  body: RichText
+defaults:
+  layout: {padding: {base: {top: 4, right: 4, bottom: 4, left: 4}, md: {top: 6, right: 6, bottom: 6, left: 6}}, gap: {base: 3, md: 6}}
+  appearance: {rounded: xl, shadow: lg}
+types:
+  IconPlacement: {enum: [top, start, end]}
+  ForcedAlign: {enum: [start, center, end, justify, inherit], doc: inherit = no override (the text's own alignment).}

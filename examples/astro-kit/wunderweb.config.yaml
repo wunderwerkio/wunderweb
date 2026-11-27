@@ -1,0 +1,7 @@
+# Astro site using blocks from an npm package (examples/kit) next to its own
+# blocks/: the CI fixture of the `packages` config.
+schema: 1
+locales: [de]
+defaultLocale: de
+css: [./src/styles/global.css]
+packages: ["@example/kit"]

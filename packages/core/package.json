@@ -1,0 +1,48 @@
+{
+	"name": "@wunderweb/core",
+	"version": "0.4.0",
+	"description": "Core schema, compiler, validator, content loader and Tailwind mapping.",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wunderwerkio/wunderweb.git",
+		"directory": "packages/core"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org",
+		"access": "public",
+		"provenance": true
+	},
+	"files": [
+		"core",
+		"dist"
+	],
+	"exports": {
+		".": {
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs"
+		},
+		"./tailwind": {
+			"types": "./dist/tailwind.d.mts",
+			"import": "./dist/tailwind.mjs"
+		},
+		"./consent": {
+			"types": "./dist/consent.d.mts",
+			"import": "./dist/consent.mjs"
+		},
+		"./edit": {
+			"types": "./dist/browser.d.mts",
+			"import": "./dist/browser.mjs"
+		}
+	},
+	"scripts": {
+		"build": "tsdown src/index.ts src/tailwind.ts src/browser.ts src/consent.ts --dts --format esm",
+		"typecheck": "tsc -p ."
+	},
+	"dependencies": {
+		"ajv": "^8.20.0",
+		"node-html-parser": "^9.0.4",
+		"yaml": "^2.9.1"
+	}
+}

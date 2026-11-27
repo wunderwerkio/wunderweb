@@ -1,0 +1,8 @@
+{
+	"yaml.schemas": {
+		"./generated/schema.json": [
+			"content/*/pages/**/*.yaml",
+			"content/*/fragments/*.yaml"
+		]
+	}
+}

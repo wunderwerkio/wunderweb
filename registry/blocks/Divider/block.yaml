@@ -1,0 +1,5 @@
+in: [Leaf, Inline]
+traits: [Box]
+fields:
+  style?: {type: LineStyle, default: solid}
+  color?: Paint

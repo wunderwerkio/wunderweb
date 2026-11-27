@@ -1,0 +1,5 @@
+doc: Blocks stacked vertically, spaced by layout.gap.
+in: [Content]
+traits: [Box, Linkable]
+fields:
+  items: Leaf[]

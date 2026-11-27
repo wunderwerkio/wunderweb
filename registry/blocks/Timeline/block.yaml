@@ -1,0 +1,22 @@
+doc: "Items alternate along a center line from md; stacked with the line on the left below md."
+in: [Row]
+traits: [Box, Surround]
+fields:
+  items: Content[]
+  gap?: {type: Responsive<Spacing>, doc: Space between the items.}
+  marker?: {type: TimelineMarker, default: number}
+  markerIcon?: {type: Svg, doc: "marker = icon."}
+  markerColor?: {type: Color, doc: Number / icon color.}
+  markerBackground?: Color
+  markerShape?: {type: Shape, default: rounded}
+  stickyMarker?: {type: boolean, doc: The marker of the item in view stays at mid-screen.}
+  lineColor?: Paint
+  mirror?: {type: boolean, default: true, doc: "true: items left of the line align their content end (towards the line); false: all items align start."}
+types:
+  TimelineMarker: {enum: [none, number, icon]}
+rules:
+  - oneOf: [markerIcon]
+    when: {marker: [icon]}
+    message: marker icon needs markerIcon
+  - only: [markerIcon]
+    when: {marker: [icon]}

@@ -1,0 +1,3 @@
+name: Person
+description: Avatar(s) with name, role and rating (Leaf, Inline).
+schema: 1

@@ -1,0 +1,5 @@
+provenance: { registry: wunderweb, item: Text, ref: working-tree, commit: 6382ca3aab4fb2a46886dbf538dc8fee0df8cbbe, schema: 1 }
+in: [Leaf, Inline]
+traits: [Box, Surround]
+fields:
+  body: RichText

@@ -1,0 +1,10 @@
+/* Marquee (mode marquee): the track holds the items three times and moves
+   by one copy per loop. */
+@keyframes wc-marquee {
+	to {
+		transform: translateX(calc(-100% / 3));
+	}
+}
+.wc-marquee-track {
+	animation: wc-marquee var(--wc-marquee-duration, 40s) linear infinite;
+}
