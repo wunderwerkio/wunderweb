@@ -1,5 +1,12 @@
 # @wunderwerkio/wundercms-next
 
+## 0.5.1
+
+### Patch Changes
+
+- @wunderweb/core@0.5.1
+  - @wunderweb/react@0.5.1
+
 ## 0.5.0
 
 ### Minor Changes
