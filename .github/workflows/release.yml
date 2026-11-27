@@ -3,9 +3,8 @@
 # CLI installs registry blocks at them) and checks the release as a site
 # gets it.
 #
-# Publishing: npm trusted publishing (OIDC, no token) once each package has
-# this workflow as its trusted publisher on npmjs.com; until then (the very
-# first release) the repository secret NPM_TOKEN. Provenance and trusted
+# Publishing: npm trusted publishing (OIDC, no token): each package has this
+# workflow as its trusted publisher on npmjs.com. Provenance and trusted
 # publishing need a public repository and a GitHub-hosted runner.
 name: Release
 on:
@@ -36,11 +35,6 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # Built before the publish token is in any step's environment.
       - run: pnpm build
-      # pnpm does not expand ${NODE_AUTH_TOKEN} in the repository's .npmrc
-      # (GHSA-3qhv-2rgh-x77r), only in a user-level one: the publish token
-      # goes there (the variable, not the token, is written).
-      - name: registry.npmjs.org auth
-        run: echo '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}' >> ~/.npmrc
       # Pinned: the step holds the npm publish token.
       - uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         id: changesets
@@ -48,7 +42,6 @@ jobs:
           publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
       # `changeset publish` tags what it published, locally; the action does
       # not see the tags in pnpm's output and pushes none. The CLI installs
