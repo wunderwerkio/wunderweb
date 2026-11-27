@@ -45,6 +45,7 @@ import {
 	runtimeVersion,
 	type Source,
 	satisfies,
+	tagCommit,
 	WORKING_TREE,
 	withProvenance,
 } from "./registry.js";
@@ -277,6 +278,8 @@ export interface UpdateResult {
 	conflicts: string[];
 	/** Dependencies of the new version that were installed. */
 	added: string[];
+	/** Why the merge had no base (two-way: differences are conflicts), if so. */
+	noBase?: string;
 }
 
 /**
@@ -306,7 +309,8 @@ export function update(
 	}
 	checkItemFiles(name, theirs.files);
 	checkPins(project, theirs, name, source);
-	const base = baseOf(project, p);
+	const found = baseOf(project, p);
+	const base = found.item ?? NO_BASE;
 	const ours = registryForm(readDir(dir) ?? {});
 	const result: UpdateResult = {
 		block: name,
@@ -315,6 +319,7 @@ export function update(
 		outcome: "merged",
 		conflicts: [],
 		added: [],
+		...(found.missing ? { noBase: found.missing } : {}),
 	};
 
 	// Nothing to merge: same files locally, at the base and upstream.
@@ -519,14 +524,32 @@ function installedBlock(
 	return { dir, p };
 }
 
-function baseOf(project: Project, p: Provenance): Item {
-	const base = readBase(project, p);
-	if (!base) {
-		throw new Error(
-			`base of ${p.item} not found: registry ${p.registry} has no item ${p.item} at commit ${p.commit}`,
-		);
+/** The empty base of a two-way merge: every difference is a conflict. */
+const NO_BASE: Item = { manifest: { name: "", schema: 0 }, files: {} };
+
+/**
+ * The item a block was installed from: at its recorded commit, else at its
+ * recorded release tag. Neither (e.g. installed from the repository before
+ * wunderweb's public one, whose history it does not have): `missing` says
+ * why, and update merges two ways.
+ */
+function baseOf(
+	project: Project,
+	p: Provenance,
+): { item: Item; missing?: undefined } | { item?: undefined; missing: string } {
+	const atCommit = readBase(project, p);
+	if (atCommit) {
+		return { item: atCommit };
 	}
-	return base;
+	const registry = findRegistry(project, p.registry);
+	const tag = tagCommit(registry, p.ref);
+	const atTag = tag && readItem({ registry, ref: p.ref, commit: tag }, p.item);
+	if (atTag) {
+		return { item: atTag };
+	}
+	return {
+		missing: `base commit ${p.commit} not in registry ${registry.name}`,
+	};
 }
 
 function same(a: Record<string, string>, b: Record<string, string>): boolean {
@@ -556,9 +579,23 @@ export function diff(
 	}
 	const base = baseOf(project, p);
 	const ours = registryForm(readDir(dir) ?? {});
+	if (!base.item) {
+		// No base to tell the two apart: local against upstream directly.
+		return {
+			local: "(base unknown)",
+			upstream: unifiedDiff(ours, theirs.files, "local", source.ref),
+			ref: source.ref,
+			base: "unknown",
+		};
+	}
 	return {
-		local: unifiedDiff(base.files, ours, `${p.ref}`, "local"),
-		upstream: unifiedDiff(base.files, theirs.files, `${p.ref}`, source.ref),
+		local: unifiedDiff(base.item.files, ours, `${p.ref}`, "local"),
+		upstream: unifiedDiff(
+			base.item.files,
+			theirs.files,
+			`${p.ref}`,
+			source.ref,
+		),
 		ref: source.ref,
 		base: p.ref,
 	};
