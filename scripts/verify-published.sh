@@ -31,8 +31,9 @@ step() { printf '\n== %s\n' "$*"; }
 step "packages at $VERSION"
 for p in core react cli astro next; do
 	got=""
-	# A version just published may take a moment to show.
-	for _ in 1 2 3 4 5 6; do
+	# A version just published may take minutes to show (staged publishing:
+	# until it is approved; the registry's CDN caches the 404 meanwhile).
+	for _ in $(seq 1 60); do
 		got="$(npm view "@wunderweb/$p@$VERSION" version 2>/dev/null || true)"
 		[ "$got" = "$VERSION" ] && break
 		sleep 10
