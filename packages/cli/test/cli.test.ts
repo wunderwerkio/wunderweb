@@ -784,6 +784,72 @@ describe("update and diff", () => {
 		expect(provenance(d, "Text")).toContain(`commit: ${next}`);
 	});
 
+	/**
+	 * A copy whose Text block was installed from a repository the registry
+	 * has no history of: neither its commit nor its release tag is there.
+	 */
+	const withoutBase = () => {
+		const d = copy(dir);
+		const block = join(d, "blocks/Text/block.yaml");
+		writeFileSync(
+			block,
+			readFileSync(block, "utf8")
+				.replace(/commit: [0-9a-f]{40}/, `commit: ${"dead".repeat(10)}`)
+				.replace(
+					/ref: "?@wunderweb\/react@[\w.-]+"?/,
+					'ref: "@wunderwerkio/wundercms-react@0.4.0"',
+				),
+		);
+		return d;
+	};
+
+	it("takes the base from the recorded release tag when the commit is gone", () => {
+		const d = copy(dir);
+		const block = join(d, "blocks/Text/block.yaml");
+		writeFileSync(
+			block,
+			readFileSync(block, "utf8").replace(
+				/commit: [0-9a-f]{40}/,
+				`commit: ${"dead".repeat(10)}`,
+			),
+		);
+		const up = cliWithStderr(d, "update", "Text", "--ref", "main");
+		expect(up.code, up.out).toBe(0);
+		expect(up.out).toMatch(/Text: updated main/);
+		expect(up.out).not.toMatch(/two-way merge/);
+	});
+
+	it("updates a block whose base commit is gone with a two-way merge: differences become conflicts", () => {
+		const d = withoutBase();
+		const up = cliWithStderr(d, "update", "Text", "--ref", "main");
+		expect(up.code, up.out).toBe(1);
+		expect(up.out).toMatch(
+			/Text: base commit (dead){10} not in registry wunderweb: two-way merge/,
+		);
+		const text = read(d, "blocks/Text/Text.tsx");
+		// Unchanged lines are kept as they are; what differs is a conflict.
+		expect(text).toMatch(
+			/<<<<<<< local\n=======\n\n\/\/ upstream text\n>>>>>>> main\n$/,
+		);
+		expect(
+			text.startsWith(r.read("Text/Text.tsx").split("\n")[0] as string),
+		).toBe(true);
+		// Resolved: the provenance moves to the new commit.
+		writeFileSync(join(d, "blocks/Text/Text.tsx"), r.read("Text/Text.tsx"));
+		expect(cli(d, "generate").code).toBe(0);
+		expect(provenance(d, "Text")).toContain(`commit: ${next}`);
+	});
+
+	it("diffs a block whose base commit is gone against upstream directly", () => {
+		const d = withoutBase();
+		const out = cliWithStderr(d, "diff", "Text", "--ref", "main");
+		expect(out.code, out.out).toBe(0);
+		expect(out.out).toMatch(
+			/# Local changes \(base unknown → local\)\n\(base unknown\)/,
+		);
+		expect(out.out).toContain("+// upstream text");
+	});
+
 	it("diff shows local changes and upstream changes", () => {
 		const d = copy(dir);
 		const f = join(d, "blocks/Text/Text.tsx");

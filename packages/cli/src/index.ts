@@ -261,6 +261,11 @@ function runUpdate(args: string[]): number {
 	}
 
 	const r = update(project, name, { ref: values.ref });
+	if (r.noBase) {
+		process.stderr.write(
+			`${name}: ${r.noBase}: two-way merge, every difference is a conflict to resolve\n`,
+		);
+	}
 	for (const d of r.added) {
 		print(`added ${d} (new dependency)`);
 	}
