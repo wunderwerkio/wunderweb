@@ -1,6 +1,6 @@
 {
 	"name": "@wunderweb/react",
-	"version": "0.4.0",
+	"version": "0.5.0",
 	"description": "Framework-agnostic React runtime: registry, loader, renderer.",
 	"type": "module",
 	"license": "MIT",
