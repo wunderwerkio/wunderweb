@@ -1,5 +1,17 @@
 # @wunderwerkio/wundercms-react
 
+## 0.5.0
+
+### Minor Changes
+
+- d154100: wundercms is now wunderweb: the packages are `@wunderweb/{core,cli,react,astro,next}` (MIT), the CLI is `wunderweb`, the site config `wunderweb.config.yaml`, the generated stylesheet `generated/wunderweb.css`, the schema `urn:wunderweb:…`, the default registry `wunderweb` at `https://github.com/wunderwerkio/wunderweb.git`, the package blocks key `"wunderweb"`, the Astro integration `wunderweb()`, the env vars `WUNDERWEB_*`. The old config file name, package blocks key and registry name are still read, with a deprecation warning. `wunderweb migrate` renames a site in place (`--check`: dry run).
+
+### Patch Changes
+
+- Updated dependencies [d154100]
+- Updated dependencies [d154100]
+  - @wunderweb/core@0.5.0
+
 ## 0.4.0
 
 ### Patch Changes
