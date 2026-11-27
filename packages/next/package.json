@@ -1,6 +1,6 @@
 {
 	"name": "@wunderweb/next",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"description": "Next.js 16 App Router adapter.",
 	"type": "module",
 	"license": "MIT",
