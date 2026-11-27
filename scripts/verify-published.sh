@@ -29,13 +29,16 @@ SITE="$WORK/site"
 step() { printf '\n== %s\n' "$*"; }
 
 step "packages at $VERSION"
+# A version just published may take minutes to show (staged publishing:
+# until it is approved; the registry's CDN caches the 404 meanwhile): one
+# 10-minute budget for all packages.
+deadline=$(($(date +%s) + 600))
 for p in core react cli astro next; do
 	got=""
-	# A version just published may take minutes to show (staged publishing:
-	# until it is approved; the registry's CDN caches the 404 meanwhile).
-	for _ in $(seq 1 60); do
+	while :; do
 		got="$(npm view "@wunderweb/$p@$VERSION" version 2>/dev/null || true)"
 		[ "$got" = "$VERSION" ] && break
+		[ "$(date +%s)" -ge "$deadline" ] && break
 		sleep 10
 	done
 	[ "$got" = "$VERSION" ] || { echo "@wunderweb/$p@$VERSION is not published"; exit 1; }
