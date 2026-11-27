@@ -316,7 +316,6 @@ export function readItem(source: Source, name: string): Item | undefined {
 	};
 }
 
-/** The item as it was at the commit recorded in a block's provenance. */
 /** The commit of a tag in a registry (git registries only), if it has it. */
 export function tagCommit(registry: Registry, tag: string): string | undefined {
 	if (registry.workingTree || !tag) {
@@ -329,6 +328,7 @@ export function tagCommit(registry: Registry, tag: string): string | undefined {
 	}
 }
 
+/** The item as it was at the commit recorded in a block's provenance. */
 export function readBase(project: Project, p: Provenance): Item | undefined {
 	const registry = findRegistry(project, p.registry);
 	return readItem({ registry, ref: p.commit, commit: p.commit }, p.item);

@@ -840,13 +840,23 @@ describe("update and diff", () => {
 		expect(provenance(d, "Text")).toContain(`commit: ${next}`);
 	});
 
+	it("without a base, keeps a file on one side only and calls it a conflict", () => {
+		const d = withoutBase();
+		writeFileSync(join(d, "blocks/Text/Text.notes.md"), "local only\n");
+		// Only the extra local file differs from upstream.
+		writeFileSync(join(d, "blocks/Text/Text.tsx"), r.read("Text/Text.tsx"));
+		const up = cli(d, "update", "Text", "--ref", "main");
+		expect(up.code, up.out).toBe(1);
+		expect(up.out).toMatch(/Text\.notes\.md \(only local, no base/);
+		expect(read(d, "blocks/Text/Text.notes.md")).toBe("local only\n");
+		expect(provenance(d, "Text")).toContain("pending");
+	});
+
 	it("diffs a block whose base commit is gone against upstream directly", () => {
 		const d = withoutBase();
 		const out = cliWithStderr(d, "diff", "Text", "--ref", "main");
 		expect(out.code, out.out).toBe(0);
-		expect(out.out).toMatch(
-			/# Local changes \(base unknown → local\)\n\(base unknown\)/,
-		);
+		expect(out.out).toMatch(/# Local against upstream \(local → main\)/);
 		expect(out.out).toContain("+// upstream text");
 	});
 
